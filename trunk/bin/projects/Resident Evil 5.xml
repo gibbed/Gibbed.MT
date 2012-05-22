@@ -1,0 +1,37 @@
+<project>
+	<name>Resident Evil 5</name>
+	<dependencies>
+		<dependency>Shared</dependency>
+	</dependencies>
+	<settings>
+		<setting name="archive_unknown_flag_position">Upper</setting>
+		<setting name="archive_compression_scheme">Zlib</setting>
+	</settings>
+	<list_location>Resident Evil 5</list_location>
+	<install_locations>
+		<install_location>
+			<action type="registry" key="HKEY_LOCAL_MACHINE\SOFTWARE\CAPCOM\RESIDENT EVIL 5" value="InstallDir" />
+		</install_location>
+		<install_location>
+			<action type="registry" key="HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\CAPCOM\RESIDENT EVIL 5" value="InstallDir" />
+		</install_location>
+		<install_location>
+			<action type="registry" key="HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 21690" value="InstallLocation" />
+		</install_location>
+		<install_location>
+			<action type="registry" key="HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 21690" value="InstallLocation" />
+		</install_location>
+		<install_location>
+			<action type="registry" key="HKEY_LOCAL_MACHINE\SOFTWARE\Valve\Steam" value="InstallPath" />
+			<action type="combine">steamapps</action>
+			<action type="combine">common</action>
+			<action type="combine">Resident Evil 5</action>
+		</install_location>
+		<install_location>
+			<action type="registry" key="HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Valve\Steam" value="InstallPath" />
+			<action type="combine">steamapps</action>
+			<action type="combine">common</action>
+			<action type="combine">Resident Evil 5</action>
+		</install_location>
+	</install_locations>
+</project>
