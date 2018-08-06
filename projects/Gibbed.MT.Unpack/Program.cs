@@ -95,7 +95,7 @@ namespace Gibbed.MT.Unpack
 
             if (manager.ActiveProject != null)
             {
-                var knownFileTypesPath = Path.Combine(manager.ActiveProject.ListsPath, "file types.cfg");
+                var knownFileTypesPath = Path.Combine(manager.ActiveProject.ListsPath, "archive file types.cfg");
                 if (File.Exists(knownFileTypesPath) == true)
                 {
                     knownFileTypes.Load(knownFileTypesPath);
