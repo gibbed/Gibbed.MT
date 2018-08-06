@@ -5,8 +5,9 @@
 	</dependencies>
 	<settings>
 		<setting name="archive_endian">Big</setting>
-		<setting name="archive_version">Eight</setting>
+		<setting name="archive_version">8</setting>
 		<setting name="archive_compression_scheme">Zlib</setting>
+		<setting name="archive_same_size_is_uncompressed">True</setting>
 	</settings>
 	<list_location>Dragon's Dogma</list_location>
 </project>

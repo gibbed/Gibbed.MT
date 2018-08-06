@@ -87,7 +87,9 @@ namespace Gibbed.MT.Unpack
             }
 
             var cryptoKey = manager.GetSetting("crypto_key", null);
+            var archiveVersion = manager.GetSetting("archive_version", (ushort)7);
             var compressionScheme = manager.GetSetting("archive_compression_scheme", CompressionScheme.None);
+            var sameSizeIsUncompressed = manager.GetSetting("archive_same_size_is_uncompressed", false);
 
             var knownFileTypes = new KnownFileTypes();
 
@@ -104,6 +106,11 @@ namespace Gibbed.MT.Unpack
             {
                 var archive = new ArchiveFile(cryptoKey);
                 archive.Deserialize(input);
+
+                if (archive.Version != archiveVersion)
+                {
+                    Console.WriteLine("Warning: file version does not match project version");
+                }
 
                 long current = 0;
                 long total = archive.Entries.Count;
@@ -166,7 +173,8 @@ namespace Gibbed.MT.Unpack
                             data = input;
                         }
 
-                        if (compressionScheme == CompressionScheme.None)
+                        if (compressionScheme == CompressionScheme.None ||
+                            (sameSizeIsUncompressed == true && entry.CompressedSize == entry.UncompressedSize))
                         {
                             output.WriteFromStream(data, entry.CompressedSize);
                         }

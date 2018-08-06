@@ -102,7 +102,7 @@ namespace Gibbed.MT.Pack
 
             var cryptoKey = manager.GetSetting("crypto_key", null);
             var archiveEndian = manager.GetSetting("archive_endian", Endian.Little);
-            var archiveVersion = manager.GetSetting("archive_version", ArchiveFile.FileVersion.Seven);
+            var archiveVersion = manager.GetSetting("archive_version", (ushort)7);
             var compressionScheme = manager.GetSetting("archive_compression_scheme", CompressionScheme.None);
 
             if (string.IsNullOrEmpty(cryptoKey) == true && encrypt == true)
@@ -222,52 +222,52 @@ namespace Gibbed.MT.Pack
                         entry.Offset = (uint)output.Position;
                         entry.UncompressedSize = (uint)input.Length;
 
+                        uint compressedSize;
+                        using (var temp = new MemoryStream())
                         {
-                            uint compressedSize;
-
-                            using (var temp = new MemoryStream())
+                            if (compressionScheme == CompressionScheme.None)
                             {
-                                if (compressionScheme == CompressionScheme.None)
+                                temp.WriteFromStream(input, input.Length);
+                                temp.Flush();
+                                temp.Position = 0;
+                            }
+                            else if (compressionScheme == CompressionScheme.Zlib ||
+                                     compressionScheme == CompressionScheme.ZlibHeaderless)
+                            {
+                                var headerless = compressionScheme == CompressionScheme.ZlibHeaderless;
+                                int compressionLevel = Deflater.BEST_COMPRESSION;
+                                var deflater = new Deflater(compressionLevel, headerless);
+                                using (var zlib = new DeflaterOutputStream(temp, deflater))
                                 {
+                                    zlib.IsStreamOwner = false;
+                                    zlib.WriteFromStream(input, input.Length);
+                                    zlib.Finish();
                                 }
-                                else if (compressionScheme == CompressionScheme.Zlib ||
-                                         compressionScheme == CompressionScheme.ZlibHeaderless)
-                                {
-                                    var headerless = compressionScheme == CompressionScheme.ZlibHeaderless;
-                                    int compressionLevel = Deflater.BEST_COMPRESSION;
-                                    var deflater = new Deflater(compressionLevel, headerless);
-                                    using (var zlib = new DeflaterOutputStream(temp, deflater))
-                                    {
-                                        zlib.IsStreamOwner = false;
-                                        zlib.WriteFromStream(input, input.Length);
-                                        zlib.Finish();
-                                    }
-                                    temp.Flush();
-                                    temp.Position = 0;
-                                }
-                                else if (compressionScheme == CompressionScheme.XCompress)
-                                {
-                                    throw new NotImplementedException();
-                                }
-                                else
-                                {
-                                    throw new NotSupportedException();
-                                }
-
-                                if (encrypt == true)
-                                {
-                                    temp.SetLength(temp.Length.Align(8));
-                                    var blowfish = archive.GetBlowfish();
-                                    var tempBytes = temp.GetBuffer();
-                                    blowfish.Encrypt(tempBytes, 0, tempBytes, 0, tempBytes.Length);
-                                }
-
-                                compressedSize = (uint)temp.Length;
-                                output.WriteFromStream(temp, temp.Length);
+                                temp.Flush();
+                                temp.Position = 0;
+                            }
+                            else if (compressionScheme == CompressionScheme.XCompress)
+                            {
+                                throw new NotImplementedException();
+                            }
+                            else
+                            {
+                                throw new NotSupportedException();
                             }
 
-                            entry.CompressedSize = compressedSize;
+                            if (encrypt == true)
+                            {
+                                temp.SetLength(temp.Length.Align(8));
+                                var blowfish = archive.GetBlowfish();
+                                var tempBytes = temp.GetBuffer();
+                                blowfish.Encrypt(tempBytes, 0, tempBytes, 0, tempBytes.Length);
+                            }
+
+                            compressedSize = (uint)temp.Length;
+                            output.WriteFromStream(temp, temp.Length);
                         }
+
+                        entry.CompressedSize = compressedSize;
 
                         entry.Quality = ArchiveFile.EntryQuality.Normal;
                         archive.Entries.Add(entry);

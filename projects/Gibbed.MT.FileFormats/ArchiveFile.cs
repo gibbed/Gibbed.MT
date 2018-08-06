@@ -37,7 +37,7 @@ namespace Gibbed.MT.FileFormats
         private readonly Blowfish _Blowfish;
 
         private Endian _Endian;
-        private FileVersion _Version;
+        private ushort _Version;
         private bool _IsEncrypted;
         private readonly List<Entry> _Entries;
 
@@ -48,7 +48,7 @@ namespace Gibbed.MT.FileFormats
 
         public ArchiveFile(string key)
         {
-            this._Version = FileVersion.Seven;
+            this._Version = 7;
             this._Entries = new List<Entry>();
 
             if (key != null)
@@ -65,7 +65,7 @@ namespace Gibbed.MT.FileFormats
             set { this._Endian = value; }
         }
 
-        public FileVersion Version
+        public ushort Version
         {
             get { return this._Version; }
             set { this._Version = value; }
@@ -220,17 +220,10 @@ namespace Gibbed.MT.FileFormats
             }
 
             this._Endian = endian;
-            this._Version = (FileVersion)version;
+            this._Version = version;
             this._IsEncrypted = isEncrypted;
             this._Entries.Clear();
             this._Entries.AddRange(entries);
-        }
-
-        public enum FileVersion : ushort
-        {
-            Seven,
-            Eight,
-            Seventeen,
         }
 
         public struct Entry
