@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2018 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -20,14 +20,14 @@
  *    distribution.
  */
 
-using System;
-
-namespace Gibbed.MT.FileFormats.Archive
+namespace Gibbed.MT.FileFormats
 {
-    [Flags]
-    public enum UnknownFlags : byte
+    public enum CompressionScheme
     {
-        None = 0,
-        Unknown1 = 1 << 1,
+        Invalid = 0,
+        None,
+        Zlib,
+        ZlibHeaderless,
+        XCompress,
     }
 }

@@ -4,7 +4,7 @@
 		<dependency>Shared</dependency>
 	</dependencies>
 	<settings>
-		<setting name="archive_unknown_flag_position">Lower</setting>
+		<setting name="archive_endian">Big</setting>
 		<setting name="archive_compression_scheme">Zlib</setting>
 	</settings>
 	<list_location>Dragon's Dogma</list_location>

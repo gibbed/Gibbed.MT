@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2018 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -26,7 +26,6 @@ using System.Globalization;
 using System.IO;
 using Gibbed.IO;
 using Gibbed.MT.FileFormats;
-using Gibbed.MT.FileFormats.Archive;
 using ICSharpCode.SharpZipLib.Zip.Compression;
 using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 using NDesk.Options;
@@ -49,26 +48,10 @@ namespace Gibbed.MT.Unpack
 
             var options = new OptionSet()
             {
-                {
-                    "o|overwrite",
-                    "overwrite existing files",
-                    v => overwriteFiles = v != null
-                    },
-                {
-                    "v|verbose",
-                    "be verbose",
-                    v => verbose = v != null
-                    },
-                {
-                    "h|help",
-                    "show this message and exit",
-                    v => showHelp = v != null
-                    },
-                {
-                    "p|project=",
-                    "override current project",
-                    v => currentProject = v
-                    },
+                { "o|overwrite", "overwrite existing files", v => overwriteFiles = v != null },
+                { "v|verbose", "be verbose", v => verbose = v != null },
+                { "h|help", "show this message and exit", v => showHelp = v != null },
+                { "p|project=", "override current project", v => currentProject = v },
             };
 
             List<string> extras;
@@ -87,7 +70,7 @@ namespace Gibbed.MT.Unpack
 
             if (extras.Count < 1 || extras.Count > 2 || showHelp == true)
             {
-                Console.WriteLine("Usage: {0} [OPTIONS]+ input_rcf [output_dir]", GetExecutableName());
+                Console.WriteLine("Usage: {0} [OPTIONS]+ input_arc [output_dir]", GetExecutableName());
                 Console.WriteLine();
                 Console.WriteLine("Options:");
                 options.WriteOptionDescriptions(Console.Out);
@@ -103,22 +86,23 @@ namespace Gibbed.MT.Unpack
                 Console.WriteLine("Warning: no active project loaded.");
             }
 
+            var cryptoKey = manager.GetSetting("crypto_key", null);
             var compressionScheme = manager.GetSetting("archive_compression_scheme", CompressionScheme.None);
 
-            var kft = new KnownFileTypes();
+            var knownFileTypes = new KnownFileTypes();
 
             if (manager.ActiveProject != null)
             {
-                var kftPath = Path.Combine(manager.ActiveProject.ListsPath, "archive_file_types.cfg");
-                if (File.Exists(kftPath) == true)
+                var knownFileTypesPath = Path.Combine(manager.ActiveProject.ListsPath, "file types.cfg");
+                if (File.Exists(knownFileTypesPath) == true)
                 {
-                    kft.Load(kftPath);
+                    knownFileTypes.Load(knownFileTypesPath);
                 }
             }
 
             using (var input = File.OpenRead(inputPath))
             {
-                var archive = new ArchiveFile(manager.GetSetting("archive_unknown_flag_position", UnknownFlagPosition.Lower));
+                var archive = new ArchiveFile(cryptoKey);
                 archive.Deserialize(input);
 
                 long current = 0;
@@ -131,13 +115,14 @@ namespace Gibbed.MT.Unpack
 
                     var entryName = entry.Name;
 
-                    if (kft.Contains(entry.TypeHash) == false)
+                    if (knownFileTypes.Contains(entry.TypeHash) == false)
                     {
                         entryName += ".UNK#" + entry.TypeHash.ToString("X8");
                     }
                     else
                     {
-                        entryName += kft.GetExtension(entry.TypeHash) ?? "." + kft.GetName(entry.TypeHash);
+                        entryName += knownFileTypes.GetExtension(entry.TypeHash) ??
+                                     "." + knownFileTypes.GetName(entry.TypeHash);
                     }
 
                     var entryPath = Path.Combine(outputPath, entryName);
@@ -149,10 +134,11 @@ namespace Gibbed.MT.Unpack
 
                     if (verbose == true)
                     {
-                        Console.WriteLine("[{0}/{1}] {2}",
-                                          current.ToString(CultureInfo.InvariantCulture).PadLeft(padding),
-                                          total,
-                                          entryName);
+                        Console.WriteLine(
+                            "[{0}/{1}] {2}",
+                            current.ToString(CultureInfo.InvariantCulture).PadLeft(padding),
+                            total,
+                            entryName);
                     }
 
                     input.Seek(entry.Offset, SeekOrigin.Begin);
@@ -167,80 +153,74 @@ namespace Gibbed.MT.Unpack
                     {
                         input.Seek(entry.Offset, SeekOrigin.Begin);
 
+                        Stream data, temp = null;
+                        if (archive.IsEncrypted == true)
+                        {
+                            var blowfish = archive.GetBlowfish();
+                            var inputBytes = input.ReadBytes((int)entry.CompressedSize);
+                            blowfish.Decrypt(inputBytes, 0, inputBytes, 0, inputBytes.Length);
+                            data = temp = new MemoryStream(inputBytes, false);
+                        }
+                        else
+                        {
+                            data = input;
+                        }
+
                         if (compressionScheme == CompressionScheme.None)
                         {
-                            output.WriteFromStream(input, entry.CompressedSize);
+                            output.WriteFromStream(data, entry.CompressedSize);
                         }
-                        else if (compressionScheme == CompressionScheme.Zlib)
+                        else if (compressionScheme == CompressionScheme.Zlib ||
+                                 compressionScheme == CompressionScheme.ZlibHeaderless)
                         {
-                            if (entry.CompressedSize == entry.UncompressedSize)
+                            var headerless = compressionScheme == CompressionScheme.ZlibHeaderless;
+                            using (var zlib = new InflaterInputStream(data, new Inflater(headerless)))
                             {
-                                output.WriteFromStream(input, entry.UncompressedSize);
-                            }
-                            else
-                            {
-                                using (var temp = input.ReadToMemoryStream((int)entry.CompressedSize))
-                                {
-                                    var zlib = new InflaterInputStream(temp);
-                                    output.WriteFromStream(zlib, entry.UncompressedSize);
-                                }
-                            }
-                        }
-                        else if (compressionScheme == CompressionScheme.ZlibHeaderless)
-                        {
-                            if (entry.CompressedSize == entry.UncompressedSize)
-                            {
-                                output.WriteFromStream(input, entry.UncompressedSize);
-                            }
-                            else
-                            {
-                                using (var temp = input.ReadToMemoryStream((int)entry.CompressedSize))
-                                {
-                                    var zlib = new InflaterInputStream(temp, new Inflater(false));
-                                    output.WriteFromStream(zlib, entry.UncompressedSize);
-                                }
+                                zlib.IsStreamOwner = false;
+                                output.WriteFromStream(zlib, entry.UncompressedSize);
                             }
                         }
                         else if (compressionScheme == CompressionScheme.XCompress)
                         {
-                            if (entry.CompressedSize == entry.UncompressedSize)
-                            {
-                                output.WriteFromStream(input, entry.UncompressedSize);
-                            }
-                            else
-                            {
-                                var compressed = input.ReadBytes((int)entry.CompressedSize);
-                                var uncompressed = new byte[entry.UncompressedSize];
+                            var compressedBytes = data is MemoryStream
+                                                      ? ((MemoryStream)data).GetBuffer()
+                                                      : input.ReadBytes((int)entry.CompressedSize);
+                            var uncompressedBytes = new byte[entry.UncompressedSize];
 
-                                using (var context = new XCompression.DecompressionContext(0x8000))
+                            using (var context = new XCompression.DecompressionContext(0x8000))
+                            {
+                                var compressedSize = compressedBytes.Length;
+                                var uncompressedSize = uncompressedBytes.Length;
+
+                                var result = context.Decompress(
+                                    compressedBytes,
+                                    0,
+                                    ref compressedSize,
+                                    uncompressedBytes,
+                                    0,
+                                    ref uncompressedSize);
+                                if (result != XCompression.ErrorCode.None)
                                 {
-                                    var compressedSize = compressed.Length;
-                                    var uncompressedSize = uncompressed.Length;
-
-                                    if (
-                                        context.Decompress(compressed,
-                                                           0,
-                                                           ref compressedSize,
-                                                           uncompressed,
-                                                           0,
-                                                           ref uncompressedSize) != XCompression.ErrorCode.None)
-                                    {
-                                        throw new InvalidOperationException();
-                                    }
-
-                                    if (uncompressedSize != uncompressed.Length ||
-                                        compressedSize != compressed.Length)
-                                    {
-                                        throw new InvalidOperationException();
-                                    }
-
-                                    output.WriteBytes(uncompressed);
+                                    throw new InvalidOperationException();
                                 }
+
+                                if (uncompressedSize != uncompressedBytes.Length ||
+                                    compressedSize != compressedBytes.Length)
+                                {
+                                    throw new InvalidOperationException();
+                                }
+
+                                output.WriteBytes(uncompressedBytes);
                             }
                         }
                         else
                         {
                             throw new NotSupportedException();
+                        }
+
+                        if (temp != null)
+                        {
+                            temp.Dispose();
                         }
                     }
                 }

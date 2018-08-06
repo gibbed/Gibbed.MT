@@ -4,7 +4,7 @@
 		<dependency>Shared</dependency>
 	</dependencies>
 	<settings>
-		<setting name="archive_unknown_flag_position">Upper</setting>
+		<setting name="archive_endian">Little</setting>
 		<setting name="archive_compression_scheme">Zlib</setting>
 	</settings>
 	<list_location>Resident Evil 5</list_location>

@@ -27,11 +27,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("Gibbed.MT.Unpack")]
+[assembly: AssemblyTitle("Gibbed.MT.Pack")]
 [assembly: AssemblyDescription("http://gib.me/")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Gibbed")]
-[assembly: AssemblyProduct("Gibbed.MT.Unpack")]
+[assembly: AssemblyProduct("Gibbed.MT.Pack")]
 [assembly: AssemblyCopyright("Copyright © Gibbed 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -44,7 +44,7 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 
-[assembly: Guid("b02190c5-9ae3-405c-87e1-4453867d1895")]
+[assembly: Guid("7c1572b8-4b01-47b1-a06d-06ebf4bdf0cb")]
 
 // Version information for an assembly consists of the following four values:
 //

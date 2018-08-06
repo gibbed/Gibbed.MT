@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2012 Rick (rick 'at' gibbed 'dot' us)
+﻿/* Copyright (c) 2018 Rick (rick 'at' gibbed 'dot' us)
  * 
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -25,36 +25,47 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
-namespace Gibbed.MT.FileFormats.Archive
+namespace Gibbed.MT.FileFormats
 {
     public class KnownFileTypes
     {
-        private readonly Dictionary<uint, string> _Names = new Dictionary<uint, string>();
-        private readonly Dictionary<uint, string> _Extensions = new Dictionary<uint, string>();
+        private readonly Dictionary<uint, string> _HashToNames = new Dictionary<uint, string>();
+        private readonly Dictionary<uint, string> _HashToExtensions = new Dictionary<uint, string>();
+        private readonly Dictionary<string, uint> _ExtensionToHashes = new Dictionary<string, uint>();
 
         public bool Contains(uint hash)
         {
-            return this._Names.ContainsKey(hash);
+            return this._HashToNames.ContainsKey(hash);
+        }
+
+        public uint? GetHashFromExtension(string extension)
+        {
+            if (this._ExtensionToHashes.ContainsKey(extension) == false)
+            {
+                return null;
+            }
+
+            return this._ExtensionToHashes[extension];
         }
 
         public string GetName(uint hash)
         {
-            if (this._Names.ContainsKey(hash) == false)
+            if (this._HashToNames.ContainsKey(hash) == false)
             {
                 return null;
             }
 
-            return this._Names[hash];
+            return this._HashToNames[hash];
         }
 
         public string GetExtension(uint hash)
         {
-            if (this._Extensions.ContainsKey(hash) == false)
+            if (this._HashToExtensions.ContainsKey(hash) == false)
             {
                 return null;
             }
 
-            return this._Extensions[hash];
+            return this._HashToExtensions[hash];
         }
 
         public void Load(string path)
@@ -66,8 +77,9 @@ namespace Gibbed.MT.FileFormats.Archive
                 text = reader.ReadToEnd();
             }
 
-            this._Names.Clear();
-            this._Extensions.Clear();
+            this._HashToNames.Clear();
+            this._HashToExtensions.Clear();
+            this._ExtensionToHashes.Clear();
 
             var whitespace = new[]
             {
@@ -102,19 +114,20 @@ namespace Gibbed.MT.FileFormats.Archive
                         throw new FormatException();
                     }
 
-                    var id = parts[0];
-                    id = id.Trim();
-
-                    uint givenHash;
-                    if (
-                        uint.TryParse(id, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out givenHash) ==
-                        false)
-                    {
-                        throw new FormatException("failed to parse hash");
-                    }
+                    var hashText = parts[0];
+                    hashText = hashText.Trim();
 
                     if (parts.Length == 1)
                     {
+                        uint dummy;
+                        if (uint.TryParse(hashText,
+                                          NumberStyles.AllowHexSpecifier,
+                                          CultureInfo.InvariantCulture,
+                                          out dummy) == false)
+                        {
+                            throw new FormatException("failed to parse hash");
+                        }
+
                         continue;
                     }
 
@@ -133,30 +146,44 @@ namespace Gibbed.MT.FileFormats.Archive
                         throw new FormatException("empty key");
                     }
 
-                    var actualHash = key.HashCrc32() & 0x7FFFFFFF;
+                    var actualHash = Crc32.Compute(key) & 0x7FFFFFFFu;
 
-                    if (givenHash != actualHash)
+                    if (hashText != "????????")
                     {
-                        throw new FormatException("given hash does not match actual hash for " + key + " (" +
-                                                  givenHash.ToString("X8") + " vs " + actualHash.ToString("X8") + ")");
+                        uint givenHash;
+                        if (uint.TryParse(hashText,
+                                          NumberStyles.AllowHexSpecifier,
+                                          CultureInfo.InvariantCulture,
+                                          out givenHash) == false)
+                        {
+                            throw new FormatException("failed to parse hash");
+                        }
+
+                        if (givenHash != actualHash)
+                        {
+                            throw new FormatException("given hash does not match actual hash for " + key + " (" +
+                                                      givenHash.ToString("X8") + " vs " + actualHash.ToString("X8") +
+                                                      ")");
+                        }
                     }
 
-                    if (this._Names.ContainsKey(actualHash) == true)
+                    if (this._HashToNames.ContainsKey(actualHash) == true)
                     {
-                        throw new FormatException("duplicate hash: " + key + " and " + this._Names[actualHash] + " (" +
+                        throw new FormatException("duplicate hash: " + key + " and " + this._HashToNames[actualHash] + " (" +
                                                   actualHash.ToString("X8") + ")");
                     }
 
-                    this._Names.Add(actualHash, key);
+                    this._HashToNames.Add(actualHash, key);
 
                     if (string.IsNullOrEmpty(value) == false)
                     {
-                        if (this._Extensions.ContainsValue(value) == true)
+                        if (this._HashToExtensions.ContainsValue(value) == true)
                         {
                             throw new FormatException("duplicate extension: " + value);
                         }
 
-                        this._Extensions.Add(actualHash, value);
+                        this._HashToExtensions.Add(actualHash, value);
+                        this._ExtensionToHashes.Add(value, actualHash);
                     }
                 }
             }
