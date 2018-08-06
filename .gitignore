@@ -21,8 +21,8 @@ projects/Test/
 x64/
 x86/
 bld/
-[Bb]in/
-[Bb]in_saveedit/
+*/[Bb]in/
+[Bb]in/*.*
 [Oo]bj/
 [Ll]og/
 
