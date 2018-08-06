@@ -5,7 +5,9 @@
 	</dependencies>
 	<settings>
 		<setting name="archive_endian">Little</setting>
+		<setting name="archive_version">7</setting>
 		<setting name="archive_compression_scheme">Zlib</setting>
+		<setting name="archive_same_size_is_uncompressed">True</setting>
 	</settings>
 	<list_location>Resident Evil 5</list_location>
 	<install_locations>
