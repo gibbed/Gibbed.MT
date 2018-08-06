@@ -5,6 +5,7 @@
 	</dependencies>
 	<settings>
 		<setting name="archive_endian">Big</setting>
+		<setting name="archive_version">Seventeen</setting>
 		<setting name="archive_compression_scheme">XCompress</setting>
 	</settings>
 	<list_location>Dragon's Dogma</list_location>
