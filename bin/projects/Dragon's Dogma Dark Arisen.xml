@@ -1,0 +1,33 @@
+<project>
+	<name>Dragon's Dogma Dark Arisen</name>
+	<dependencies>
+		<dependency>Shared</dependency>
+	</dependencies>
+	<settings>
+		<setting name="archive_endian">Little</setting>
+		<setting name="archive_version">7</setting>
+		<setting name="archive_compression_scheme">Zlib</setting>
+		<setting name="archive_same_size_is_uncompressed">False</setting>
+	</settings>
+	<list_location>Dragon's Dogma Dark Arisen</list_location>
+	<install_locations>
+		<install_location>
+			<action type="registry" key="HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 367500" value="InstallLocation" />
+		</install_location>
+		<install_location>
+			<action type="registry" key="HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 367500" value="InstallLocation" />
+		</install_location>
+		<install_location>
+			<action type="registry" key="HKEY_LOCAL_MACHINE\SOFTWARE\Valve\Steam" value="InstallPath" />
+			<action type="combine">steamapps</action>
+			<action type="combine">common</action>
+			<action type="combine">DDDA</action>
+		</install_location>
+		<install_location>
+			<action type="registry" key="HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Valve\Steam" value="InstallPath" />
+			<action type="combine">steamapps</action>
+			<action type="combine">common</action>
+			<action type="combine">DDDA</action>
+		</install_location>
+	</install_locations>
+</project>
