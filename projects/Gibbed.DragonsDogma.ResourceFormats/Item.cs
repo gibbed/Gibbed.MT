@@ -39,23 +39,23 @@ namespace Gibbed.DragonsDogma.ResourceFormats
         public byte Unknown08_20 { get; set; }
         public byte Unknown08_27 { get; set; }
         public uint Unknown0C_0 { get; set; }
-        public short Unknown0C_20 { get; set; }
+        public short Poison { get; set; } // 0C
         public byte Unknown0C_30 { get; set; }
         public byte Unknown10_0 { get; set; }
-        public byte Unknown10_5 { get; set; }
-        public short Oil { get; set; } // 10
-        public short Unknown10_20 { get; set; }
+        public byte Torpor { get; set; } // 10
+        public short Tarring { get; set; } // 10
+        public short Blindness { get; set; } // 10
         public bool Unknown10_30 { get; set; }
         public bool Unknown10_31 { get; set; }
         public sbyte SlashStrength { get; set; } // 14
         public sbyte BludgeoningStrength { get; set; } // 15
         public sbyte PiercingResistance { get; set; } // 16
         public sbyte StrikingResistance { get; set; } // 17
-        public sbyte Fire { get; set; } // 18
-        public sbyte Ice { get; set; } // 19
-        public sbyte Lightning { get; set; } // 1A
-        public sbyte Holy { get; set; } // 1B
-        public sbyte Dark { get; set; } // 1C
+        public sbyte FireResistance { get; set; } // 18
+        public sbyte IceResistance { get; set; } // 19
+        public sbyte LightningResistance { get; set; } // 1A
+        public sbyte HolyResistance { get; set; } // 1B
+        public sbyte DarkResistance { get; set; } // 1C
         public byte Unknown1D { get; set; }
         public byte Unknown1E { get; set; }
         public byte Unknown1F { get; set; }
@@ -122,7 +122,7 @@ namespace Gibbed.DragonsDogma.ResourceFormats
         public byte Category { get; set; } // 38
         public byte Subcategory { get; set; } // 38
         public short Unknown38_10 { get; set; }
-        public byte Element { get; set; } // 38
+        public ItemElement Element { get; set; } // 38
         public byte Unknown38_26 { get; set; }
         public short Id { get; set; } // 3C
         public short Unknown3C_13 { get; set; }
@@ -232,15 +232,15 @@ namespace Gibbed.DragonsDogma.ResourceFormats
             reader.ReadBitfield(
                 this,
                 bf => bf.FieldU32(20, (t, v) => t.Unknown0C_0 = v)
-                        .FieldS16(10, (t, v) => t.Unknown0C_20 = v)
+                        .FieldS16(10, (t, v) => t.Poison = v)
                         .FieldU8(2, (t, v) => t.Unknown0C_30 = v),
                 "raw0C");
             reader.ReadBitfield(
                 this,
                 bf => bf.FieldU8(5, (t, v) => t.Unknown10_0 = v)
-                        .FieldU8(5, (t, v) => t.Unknown10_5 = v)
-                        .FieldS16(10, (t, v) => t.Oil = v)
-                        .FieldS16(10, (t, v) => t.Unknown10_20 = v)
+                        .FieldU8(5, (t, v) => t.Torpor = v)
+                        .FieldS16(10, (t, v) => t.Tarring = v)
+                        .FieldS16(10, (t, v) => t.Blindness = v)
                         .FieldB8((t, v) => t.Unknown10_30 = v)
                         .FieldB8((t, v) => t.Unknown10_31 = v),
                 "raw10");
@@ -248,11 +248,11 @@ namespace Gibbed.DragonsDogma.ResourceFormats
             this.BludgeoningStrength = reader.ReadS8();
             this.PiercingResistance = reader.ReadS8();
             this.StrikingResistance = reader.ReadS8();
-            this.Fire = reader.ReadS8();
-            this.Ice = reader.ReadS8();
-            this.Lightning = reader.ReadS8();
-            this.Holy = reader.ReadS8();
-            this.Dark = reader.ReadS8();
+            this.FireResistance = reader.ReadS8();
+            this.IceResistance = reader.ReadS8();
+            this.LightningResistance = reader.ReadS8();
+            this.HolyResistance = reader.ReadS8();
+            this.DarkResistance = reader.ReadS8();
             this.Unknown1D = reader.ReadU8();
             this.Unknown1E = reader.ReadU8();
             this.Unknown1F = reader.ReadU8();
@@ -287,7 +287,7 @@ namespace Gibbed.DragonsDogma.ResourceFormats
                 bf => bf.FieldU8(5, (t, v) => t.Category = v)
                         .FieldU8(5, (t, v) => t.Subcategory = v)
                         .FieldS16(9, (t, v) => t.Unknown38_10 = v)
-                        .FieldU8(7, (t, v) => t.Element = v)
+                        .FieldU8(7, (t, v) => t.Element = (ItemElement)v)
                         .FieldU8(6, (t, v) => t.Unknown38_26 = v),
                 "raw38");
             reader.ReadBitfield(

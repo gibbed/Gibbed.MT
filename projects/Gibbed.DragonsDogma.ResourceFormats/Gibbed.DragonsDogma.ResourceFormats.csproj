@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Item.cs" />
+    <Compile Include="ItemElement.cs" />
     <Compile Include="ItemGender.cs" />
     <Compile Include="ItemList.cs" />
     <Compile Include="ItemVocations.cs" />
