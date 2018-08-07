@@ -44,9 +44,17 @@
     <Compile Include="Blowfish.cs" />
     <Compile Include="BlowfishConstants.cs" />
     <Compile Include="CompressionScheme.cs" />
+    <Compile Include="IBitfieldWriter.cs" />
+    <Compile Include="IResource.cs" />
+    <Compile Include="IBitfieldReader.cs" />
+    <Compile Include="IResourceWriter.cs" />
     <Compile Include="KnownFileTypes.cs" />
     <Compile Include="Crc32.cs" />
+    <Compile Include="PointerSize.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="IResourceReader.cs" />
+    <Compile Include="ResourceBitfieldReader.cs" />
+    <Compile Include="ResourceReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gibbed.IO\Gibbed.IO.csproj">
