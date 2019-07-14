@@ -18,6 +18,15 @@ Tools for modding various [MT Framework](https://en.wikipedia.org/wiki/MT_Framew
 
 [You can download binaries of the latest release](https://github.com/gibbed/Gibbed.MT/releases/latest) (not the source ZIP!).
 
+If you're not working with `Dragon's Dogma Dark Arisen` you will probably want to edit `bin\projects\current.txt` and change it to one of the following:
+* `Dragon's Dogma Dark Arisen`
+* `Dragon's Dogma (360)`
+* `Dragon's Dogma (PS3)`
+* `Dragon's Dogma Online`
+* `Resident Evil 5`
+
+Alternatively, you can override the current project on the command line with the `-p` switch. IE: `-p "Resident Evil 5"`.
+
 ## TODO
 
 * Everything.
