@@ -1,6 +1,6 @@
 # Gibbed's MT Tools
 
-Tools for modding various [MT Framework](https://en.wikipedia.org/wiki/MT_Framework)-driven games, such as Dragon's Dogma.
+Tools for modding various [MT Framework](https://en.wikipedia.org/wiki/MT_Framework)-based games, such as Dragon's Dogma.
 
 **Like what I've done?**
 **Consider supporting me on [Patreon](https://patreon.com/gibbed), [Ko-fi](https://ko-fi.com/gibbed), or [PayPal](https://paypal.me/gibbed).**
