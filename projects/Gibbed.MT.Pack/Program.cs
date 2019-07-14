@@ -100,10 +100,10 @@ namespace Gibbed.MT.Pack
                 Console.WriteLine("Warning: no active project loaded.");
             }
 
-            var cryptoKey = manager.GetSetting("crypto_key", null);
             var archiveEndian = manager.GetSetting("archive_endian", Endian.Little);
             var archiveVersion = manager.GetSetting("archive_version", (ushort)7);
             var compressionScheme = manager.GetSetting("archive_compression_scheme", CompressionScheme.None);
+            var cryptoKey = manager.GetSetting("archive_crypto_key", null);
 
             if (string.IsNullOrEmpty(cryptoKey) == true && encrypt == true)
             {

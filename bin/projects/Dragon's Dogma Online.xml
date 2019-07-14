@@ -8,7 +8,7 @@
 		<setting name="archive_version">7</setting>
 		<setting name="archive_compression_scheme">Zlib</setting>
 		<setting name="archive_same_size_is_uncompressed">False</setting>
-		<setting name="crypto_key">ABB(DF2I8[{Y-oS_CCMy(@&lt;}qR}WYX11M)w[5V.~CbjwM5q&lt;F1Iab+-</setting>
+		<setting name="archive_crypto_key">ABB(DF2I8[{Y-oS_CCMy(@&lt;}qR}WYX11M)w[5V.~CbjwM5q&lt;F1Iab+-</setting>
 	</settings>
 	<list_location>Dragon's Dogma Online</list_location>
 </project>

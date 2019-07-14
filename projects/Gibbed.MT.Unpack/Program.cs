@@ -86,10 +86,10 @@ namespace Gibbed.MT.Unpack
                 Console.WriteLine("Warning: no active project loaded.");
             }
 
-            var cryptoKey = manager.GetSetting("crypto_key", null);
             var archiveVersion = manager.GetSetting("archive_version", (ushort)7);
             var compressionScheme = manager.GetSetting("archive_compression_scheme", CompressionScheme.None);
             var sameSizeIsUncompressed = manager.GetSetting("archive_same_size_is_uncompressed", false);
+            var cryptoKey = manager.GetSetting("archive_crypto_key", null);
 
             var knownFileTypes = new KnownFileTypes();
 
