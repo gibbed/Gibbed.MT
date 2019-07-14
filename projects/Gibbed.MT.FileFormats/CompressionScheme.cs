@@ -28,6 +28,7 @@ namespace Gibbed.MT.FileFormats
         None,
         Zlib,
         ZlibHeaderless,
-        XCompress,
+        LZX,
+        XCompress, // Xbox 360
     }
 }
