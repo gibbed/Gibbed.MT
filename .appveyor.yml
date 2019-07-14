@@ -26,7 +26,6 @@ install:
   - git submodule update --init --recursive
 
 configuration:
-  - SaveEdit Packaging
   - Debug
 
 dotnet_csproj:
